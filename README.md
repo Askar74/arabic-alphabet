@@ -19,3 +19,4 @@
 ## الترخيص
 
 مفتوح المصدر — استخدمه وشاركه بحرية.
+https://askar74.github.io/arabic-alphabet/
