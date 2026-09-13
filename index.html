@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#5B86E5">
+
+    <!-- WhatsApp / Social sharing tags -->
+    <meta property="og:title" content="عالم الحروف العربية 🎈 لعبة تعليمية للأطفال">
+    <meta property="og:description" content="لعبة تفاعلية ممتعة لتعليم الأطفال الحروف العربية بالصوت والصور 🐰🦋⭐">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://em-content.zobj.net/source/apple/391/balloon_1f388.png">
+
+    <title>عالم الحروف العربية 🎈</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: #EEF2FF;
+            min-height: 100vh;
+            min-height: 100dvh;
+            color: #1e293b;
+            overflow-x: hidden;
+        }
+
+        /* === HEADER === */
+        .top-bar {
+            background: linear-gradient(135deg, #5B86E5, #36D1DC);
+            padding: 20px 16px 28px;
+            text-align: center;
+            position: relative;
+        }
+
+        .top-bar h1 {
+            color: #fff;
+            font-size: 1.6rem;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+        }
+
+        .top-bar-sub {
+            color: rgba(255,255,255,0.85);
+            font-size: 0.85rem;
+            margin-top: 4px;
+        }
+
+        /* Progress pill */
+        .progress-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .progress-track {
+            width: 160px;
+            height: 10px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 99px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: #FBBF24;
+            border-radius: 99px;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .progress-label {
+            color: #fff;
+            font-size: 0.8rem;
+            font-weight: 700;
+            min-width: 50px;
+        }
+
+        /* Sound toggle */
+        .sound-toggle {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: #fff;
+            font-size: 1.2rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* === MAIN CONTENT === */
+        .container {
+            max-width: 520px;
+            margin: 0 auto;
+            padding: 0 12px 40px;
+            margin-top: -14px;
+        }
+
+        /* === LETTER GRID === */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .card {
+            aspect-ratio: 1;
+            background: #fff;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.2rem;
+            font-weight: 900;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: transform 0.15s, box-shadow 0.15s;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .card:active {
+            transform: scale(0.93);
+        }
+
+        .card .card-emoji {
+            font-size: 1rem;
+            margin-top: 2px;
+            opacity: 0.7;
+        }
+
+        .card.visited::after {
+            content: '✓';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            font-size: 0.7rem;
+            background: #22C55E;
+            color: #fff;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* === MODAL === */
+        .overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .overlay.open {
+            display: flex;
+        }
+
+        .popup {
+            background: #fff;
+            border-radius: 24px;
+            padding: 32px 24px;
+            text-align: center;
+            width: 100%;
+            max-width: 340px;
+            animation: scaleUp 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+        }
+
+        @keyframes scaleUp {
+            from { transform: scale(0.8); opacity: 0; }
+            to   { transform: scale(1);   opacity: 1; }
+        }
+
+        .popup-close {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: #f1f5f9;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            font-size: 1.1rem;
+            color: #64748b;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .popup-letter {
+            font-size: 5.5rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .popup-emoji {
+            font-size: 4rem;
+            margin: 12px 0 8px;
+        }
+
+        .popup-word {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #334155;
+        }
+
+        .popup-hint {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-top: 6px;
+        }
+
+        /* Nav arrows inside modal */
+        .popup-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            gap: 10px;
+        }
+
+        .popup-nav button {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            background: #fff;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #475569;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .popup-nav button:active {
+            background: #f1f5f9;
+        }
+
+        .speak-btn {
+            margin-top: 16px;
+            background: linear-gradient(135deg, #5B86E5, #36D1DC);
+            color: #fff;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 14px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .speak-btn:active {
+            opacity: 0.85;
+        }
+
+        /* === CERTIFICATE SECTION === */
+        .cert-section {
+            margin-top: 28px;
+            background: #fff;
+            border-radius: 20px;
+            padding: 24px 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            text-align: center;
+        }
+
+        .cert-section h3 {
+            font-size: 1.15rem;
+            color: #5B86E5;
+            margin-bottom: 8px;
+        }
+
+        .cert-section p {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 14px;
+        }
+
+        .cert-form {
+            display: flex;
+            gap: 8px;
+        }
+
+        .cert-input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .cert-input:focus {
+            border-color: #5B86E5;
+        }
+
+        .cert-btn {
+            background: #5B86E5;
+            color: #fff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        /* Certificate itself */
+        .certificate {
+            display: none;
+            margin-top: 20px;
+            border: 6px double #FBBF24;
+            border-radius: 16px;
+            padding: 28px 20px;
+            background: linear-gradient(180deg, #FFFBEB, #fff);
+            text-align: center;
+        }
+
+        .certificate.show { display: block; }
+
+        .certificate .cert-title {
+            font-size: 1.2rem;
+            color: #7C3AED;
+            font-weight: 900;
+        }
+
+        .certificate .cert-desc {
+            font-size: 0.9rem;
+            color: #475569;
+            margin: 10px 0;
+        }
+
+        .certificate .cert-student {
+            font-size: 1.8rem;
+            color: #E11D48;
+            font-weight: 900;
+            margin: 12px 0;
+        }
+
+        .certificate .cert-footer {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-top: 16px;
+        }
+
+        .print-btn {
+            margin-top: 14px;
+            background: #7C3AED;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* Confetti burst */
+        .confetti-piece {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            z-index: 200;
+            pointer-events: none;
+        }
+
+        /* Reset button */
+        .reset-row {
+            text-align: center;
+            margin-top: 18px;
+        }
+
+        .reset-btn {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-family: inherit;
+            font-size: 0.8rem;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        /* === PRINT === */
+        @media print {
+            body * { visibility: hidden; }
+            .certificate, .certificate * { visibility: visible; }
+            .certificate {
+                position: fixed;
+                inset: 0;
+                margin: auto;
+                width: 90%;
+                max-width: 500px;
+                height: fit-content;
+                box-shadow: none;
+            }
+            .print-btn { display: none; }
+        }
+
+        /* Larger screens */
+        @media (min-width: 480px) {
+            .grid { grid-template-columns: repeat(5, 1fr); }
+            .card { font-size: 2.6rem; }
+        }
+
+        @media (min-width: 640px) {
+            .grid { grid-template-columns: repeat(7, 1fr); }
+            .container { max-width: 640px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <button class="sound-toggle" id="soundBtn" onclick="toggleAmbience()" aria-label="تشغيل / إيقاف الصوت">🔇</button>
+        <h1>🎈 عالم الحروف العربية</h1>
+        <div class="top-bar-sub">اضغط على أي حرف لسماعه!</div>
+        <div class="progress-wrap">
+            <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+            <div class="progress-label" id="progressLabel">0 / 28</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="grid" id="grid"></div>
+
+        <section class="cert-section">
+            <h3>🏆 شهادة إتمام الحروف</h3>
+            <p>اكتب اسم الطالب/ة للحصول على شهادة تشجيعية</p>
+            <div class="cert-form">
+                <input type="text" id="studentName" class="cert-input" placeholder="الاسم هنا...">
+                <button class="cert-btn" onclick="generateCertificate()">إصدار</button>
+            </div>
+
+            <div class="certificate" id="certificate">
+                <div class="cert-title">✨ شهادة تقدير ✨</div>
+                <div class="cert-desc">تشهد لعبة "عالم الحروف" بأن</div>
+                <div class="cert-student" id="certName"></div>
+                <div class="cert-desc">قد أتقن/ت تعلّم جميع الحروف العربية بنجاح! 🌟</div>
+                <div class="cert-footer">مع أطيب التمنيات بدوام التوفيق</div>
+                <button class="print-btn" onclick="window.print()">طباعة 🖨️</button>
+            </div>
+        </section>
+
+        <div class="reset-row">
+            <button class="reset-btn" onclick="resetProgress()">إعادة تعيين التقدم</button>
+        </div>
+    </div>
+
+    <!-- MODAL -->
+    <div class="overlay" id="overlay" onclick="handleOverlayClick(event)">
+        <div class="popup">
+            <button class="popup-close" onclick="closePopup()">✕</button>
+            <div class="popup-letter" id="popLetter"></div>
+            <div class="popup-emoji" id="popEmoji"></div>
+            <div class="popup-word" id="popWord"></div>
+            <div class="popup-hint" id="popHint"></div>
+            <button class="speak-btn" onclick="speakCurrent()">🔊 اسمع الحرف والكلمة</button>
+            <div class="popup-nav">
+                <button onclick="navLetter(1)">→ التالي</button>
+                <button onclick="navLetter(-1)">السابق ←</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    const data = [
+        { letter:'أ', word:'أرنب',   img:'🐰', hint:'حيوان لطيف يحب الجزر',       color:'#E11D48' },
+        { letter:'ب', word:'بطة',    img:'🦆', hint:'تسبح في البحيرة',            color:'#0891B2' },
+        { letter:'ت', word:'تفاحة',  img:'🍎', hint:'فاكهة حمراء لذيذة',          color:'#DC2626' },
+        { letter:'ث', word:'ثعلب',   img:'🦊', hint:'حيوان ذكي في الغابة',        color:'#EA580C' },
+        { letter:'ج', word:'جمل',    img:'🐪', hint:'سفينة الصحراء',              color:'#CA8A04' },
+        { letter:'ح', word:'حصان',   img:'🐴', hint:'يجري بسرعة كبيرة',           color:'#65A30D' },
+        { letter:'خ', word:'خروف',   img:'🐑', hint:'صوفه أبيض وناعم',            color:'#059669' },
+        { letter:'د', word:'دب',     img:'🐻', hint:'يحب العسل كثيراً',           color:'#92400E' },
+        { letter:'ذ', word:'ذئب',    img:'🐺', hint:'يعوي في الليل',              color:'#6D28D9' },
+        { letter:'ر', word:'رمان',   img:'🍅', hint:'فاكهة مليئة بالحبوب',        color:'#BE123C' },
+        { letter:'ز', word:'زرافة',  img:'🦒', hint:'أطول حيوان في العالم',       color:'#B45309' },
+        { letter:'س', word:'سمكة',   img:'🐟', hint:'تعيش في الماء',              color:'#0284C7' },
+        { letter:'ش', word:'شمس',    img:'☀️', hint:'تنير لنا النهار',             color:'#D97706' },
+        { letter:'ص', word:'صقر',    img:'🦅', hint:'طائر قوي وسريع',             color:'#4F46E5' },
+        { letter:'ض', word:'ضفدع',   img:'🐸', hint:'ينط ويقول نق نق',            color:'#16A34A' },
+        { letter:'ط', word:'طائرة',  img:'✈️', hint:'تطير في السماء',              color:'#2563EB' },
+        { letter:'ظ', word:'ظرف',    img:'✉️', hint:'نضع فيه الرسالة',             color:'#7C3AED' },
+        { letter:'ع', word:'عصفور', img:'🐦', hint:'يغرّد على الشجرة',            color:'#0D9488' },
+        { letter:'غ', word:'غزالة',  img:'🦌', hint:'حيوان جميل وسريع',           color:'#DB2777' },
+        { letter:'ف', word:'فراشة',  img:'🦋', hint:'لها أجنحة ملونة',            color:'#A855F7' },
+        { letter:'ق', word:'قمر',    img:'🌙', hint:'ينير السماء في الليل',       color:'#1D4ED8' },
+        { letter:'ك', word:'كلب',    img:'🐶', hint:'صديق الإنسان الوفي',         color:'#B45309' },
+        { letter:'ل', word:'ليمون',  img:'🍋', hint:'حامض ومنعش',                 color:'#CA8A04' },
+        { letter:'م', word:'موز',    img:'🍌', hint:'فاكهة صفراء يحبها القرد',    color:'#EAB308' },
+        { letter:'ن', word:'نجمة',   img:'⭐', hint:'تلمع في السماء',             color:'#F59E0B' },
+        { letter:'هـ', word:'هلال',  img:'🌙', hint:'نراه في أول الشهر',          color:'#6D28D9' },
+        { letter:'و', word:'وردة',   img:'🌹', hint:'زهرة جميلة ورائحتها حلوة',  color:'#E11D48' },
+        { letter:'ي', word:'يد',     img:'✋', hint:'نكتب ونلعب بها',              color:'#0891B2' }
+    ];
+
+    const visited = new Set(JSON.parse(localStorage.getItem('hv') || '[]'));
+    let currentIdx = 0;
+
+    // Build grid
+    const grid = document.getElementById('grid');
+    data.forEach((item, i) => {
+        const c = document.createElement('div');
+        c.className = 'card' + (visited.has(i) ? ' visited' : '');
+        c.id = 'card-' + i;
+        c.style.color = item.color;
+        c.innerHTML = `<span>${item.letter}</span><span class="card-emoji">${item.img}</span>`;
+        c.onclick = () => openPopup(i);
+        grid.appendChild(c);
+    });
+
+    updateProgress();
+
+    // Popup
+    function openPopup(i) {
+        currentIdx = i;
+        const item = data[i];
+        document.getElementById('popLetter').textContent = item.letter;
+        document.getElementById('popLetter').style.color = item.color;
+        document.getElementById('popEmoji').textContent = item.img;
+        document.getElementById('popWord').textContent = item.word;
+        document.getElementById('popHint').textContent = item.hint;
+        document.getElementById('overlay').classList.add('open');
+
+        // Mark visited
+        if (!visited.has(i)) {
+            visited.add(i);
+            document.getElementById('card-' + i).classList.add('visited');
+            localStorage.setItem('hv', JSON.stringify([...visited]));
+            updateProgress();
+        }
+
+        speakCurrent();
+    }
+
+    function closePopup() {
+        document.getElementById('overlay').classList.remove('open');
+        if ('speechSynthesis' in window) speechSynthesis.cancel();
+    }
+
+    function handleOverlayClick(e) {
+        if (e.target === e.currentTarget) closePopup();
+    }
+
+    function navLetter(dir) {
+        // dir: +1 = next, -1 = prev (RTL layout swapped labels)
+        let next = currentIdx + dir;
+        if (next < 0) next = data.length - 1;
+        if (next >= data.length) next = 0;
+        openPopup(next);
+    }
+
+    // Speech
+    function speakCurrent() {
+        if (!('speechSynthesis' in window)) return;
+        speechSynthesis.cancel();
+        const item = data[currentIdx];
+        const u = new SpeechSynthesisUtterance(item.letter + '... ' + item.word);
+        u.lang = 'ar-SA';
+        u.pitch = 1.5;
+        u.rate = 0.75;
+        speechSynthesis.speak(u);
+    }
+
+    // Progress
+    function updateProgress() {
+        const pct = (visited.size / data.length) * 100;
+        document.getElementById('progressFill').style.width = pct + '%';
+        document.getElementById('progressLabel').textContent = visited.size + ' / ' + data.length;
+
+        if (visited.size === data.length) {
+            burstConfetti();
+        }
+    }
+
+    function resetProgress() {
+        visited.clear();
+        localStorage.removeItem('hv');
+        document.querySelectorAll('.card').forEach(c => c.classList.remove('visited'));
+        updateProgress();
+    }
+
+    // Ambient bird sounds
+    let audioCtx, birdTimer, ambienceOn = false;
+
+    function playChirp() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+
+        const base = 1800 + Math.random() * 1400;
+        osc.frequency.setValueAtTime(base, now);
+        osc.frequency.exponentialRampToValueAtTime(base * 1.4, now + 0.06);
+        osc.frequency.exponentialRampToValueAtTime(base * 0.7, now + 0.15);
+
+        gain.gain.setValueAtTime(0.04, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+
+        osc.connect(gain).connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.2);
+    }
+
+    function toggleAmbience() {
+        ambienceOn = !ambienceOn;
+        document.getElementById('soundBtn').textContent = ambienceOn ? '🔊' : '🔇';
+        if (ambienceOn) {
+            birdTimer = setInterval(() => { if (Math.random() > 0.45) playChirp(); }, 700);
+        } else {
+            clearInterval(birdTimer);
+        }
+    }
+
+    // Certificate
+    function generateCertificate() {
+        const name = document.getElementById('studentName').value.trim();
+        if (!name) { alert('اكتب الاسم أولاً'); return; }
+        document.getElementById('certName').textContent = name;
+        const cert = document.getElementById('certificate');
+        cert.classList.add('show');
+        cert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        burstConfetti();
+    }
+
+    // Confetti
+    function burstConfetti() {
+        const colors = ['#E11D48','#2563EB','#16A34A','#FBBF24','#A855F7','#0891B2'];
+        for (let i = 0; i < 40; i++) {
+            const el = document.createElement('div');
+            el.className = 'confetti-piece';
+            el.style.background = colors[Math.floor(Math.random() * colors.length)];
+            el.style.left = (30 + Math.random() * 40) + 'vw';
+            el.style.top = '-10px';
+            el.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+            document.body.appendChild(el);
+
+            const xDrift = (Math.random() - 0.5) * 200;
+            const dur = 1200 + Math.random() * 1000;
+            el.animate([
+                { transform: 'translate(0, 0) rotate(0deg)', opacity: 1 },
+                { transform: `translate(${xDrift}px, ${window.innerHeight + 20}px) rotate(${Math.random()*720}deg)`, opacity: 0 }
+            ], { duration: dur, easing: 'cubic-bezier(.2,.8,.3,1)' }).onfinish = () => el.remove();
+        }
+    }
+
+    // Swipe support on modal
+    let touchStartX = 0;
+    document.getElementById('overlay').addEventListener('touchstart', e => {
+        touchStartX = e.changedTouches[0].clientX;
+    }, { passive: true });
+
+    document.getElementById('overlay').addEventListener('touchend', e => {
+        const diff = e.changedTouches[0].clientX - touchStartX;
+        if (Math.abs(diff) > 60) {
+            navLetter(diff > 0 ? 1 : -1);
+        }
+    }, { passive: true });
+    </script>
+</body>
+</html>
